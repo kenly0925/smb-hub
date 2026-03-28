@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22 22.2491V18.7509L19 17L16 18.7509V22.2491L19 24L22 22.2491Z" fill="#06E5B7"/>
+<path d="M7 9.74936V7.25064L5 6L3 7.25064V9.74936L5 11L7 9.74936Z" fill="#06E5B7"/>
+<foreignObject x="1" y="-2" width="22" height="28"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(2px);clip-path:url(#bgblur_0_23889_67015_clip_path);height:100%;width:100%"></div></foreignObject><path data-figma-bg-blur-radius="4" fill-rule="evenodd" clip-rule="evenodd" d="M5 20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V4.28571C19 3.02514 18.103 2 17 2H7C5.897 2 5 3.02514 5 4.28571V20Z" fill="#C1C1C1" fill-opacity="0.3"/>
+<foreignObject x="3" y="0" width="18" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(1px);clip-path:url(#bgblur_1_23889_67015_clip_path);height:100%;width:100%"></div></foreignObject><path data-figma-bg-blur-radius="2" fill-rule="evenodd" clip-rule="evenodd" d="M7 21.8H17C17.9941 21.8 18.8 20.9941 18.8 20V4.28571C18.8 3.10968 17.9683 2.2 17 2.2H7C6.03171 2.2 5.2 3.10968 5.2 4.28571V20C5.2 20.9941 6.00589 21.8 7 21.8ZM7 22C5.89543 22 5 21.1046 5 20V4.28571C5 3.02514 5.897 2 7 2H17C18.103 2 19 3.02514 19 4.28571V20C19 21.1046 18.1046 22 17 22H7Z" fill="#242427"/>
+<path d="M13 19C13 19.5523 12.5523 20 12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19Z" fill="#242427"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M14 5H10V4H14V5Z" fill="#242427"/>
+<defs>
+<clipPath id="bgblur_0_23889_67015_clip_path" transform="translate(-1 2)"><path fill-rule="evenodd" clip-rule="evenodd" d="M5 20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V4.28571C19 3.02514 18.103 2 17 2H7C5.897 2 5 3.02514 5 4.28571V20Z"/>
+</clipPath><clipPath id="bgblur_1_23889_67015_clip_path" transform="translate(-3 0)"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 21.8H17C17.9941 21.8 18.8 20.9941 18.8 20V4.28571C18.8 3.10968 17.9683 2.2 17 2.2H7C6.03171 2.2 5.2 3.10968 5.2 4.28571V20C5.2 20.9941 6.00589 21.8 7 21.8ZM7 22C5.89543 22 5 21.1046 5 20V4.28571C5 3.02514 5.897 2 7 2H17C18.103 2 19 3.02514 19 4.28571V20C19 21.1046 18.1046 22 17 22H7Z"/>
+</clipPath></defs>
+</svg>
