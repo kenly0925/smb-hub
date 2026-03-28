@@ -233,7 +233,7 @@ a {
   --p2-switch-off-border: #d9dce3;
   --p2-switch-line: rgba(46, 50, 56, 0.34);
   --p2-switch-thumb: #ffffff;
-  --p2-tab-strip: var(--p2-elevation-base);
+  --p2-tab-strip: #d7dae1;
   --p2-tab-active: var(--p2-elevation-1);
   --p2-tab-active-text: #2e3238;
   --p2-table-head: var(--p2-elevation-base);

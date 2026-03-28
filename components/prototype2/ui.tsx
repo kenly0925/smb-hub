@@ -429,12 +429,12 @@ export function P2Tabs({
       <div
         role="tablist"
         aria-orientation="horizontal"
-        className="relative flex items-stretch rounded-[var(--p2-radius-card)] border border-[var(--p2-border)] bg-[var(--p2-tab-strip)] p-1 shadow-[var(--p2-shadow)]"
+        className="relative flex items-stretch rounded-[var(--p2-radius-card)] border border-[var(--p2-border)] bg-[var(--p2-tab-strip)] p-1"
       >
         <span
           aria-hidden
           className={cn(
-            "pointer-events-none absolute bottom-1 top-1 rounded-[4px] border border-[var(--p2-border)] bg-[var(--p2-tab-active)] shadow-[var(--p2-shadow)]",
+            "pointer-events-none absolute bottom-1 top-1 rounded-[4px] border border-[var(--p2-border)] bg-[var(--p2-tab-active)]",
             hasMeasuredTrack ? "transition-[left,width] duration-300 ease-out" : "opacity-0",
           )}
           style={{

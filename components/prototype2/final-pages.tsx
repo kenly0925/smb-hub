@@ -88,7 +88,7 @@ function getFinalOnboardingView(state: Prototype2DemoStateValue) {
   return {
     hasConnectedDevices,
     summary: {
-      statusLabel: hasConnectedDevices ? "Protected" : "Custom settings",
+      statusLabel: hasConnectedDevices ? "Protected" : "unconfigured",
       deviceCount: devices.length,
       licenseUsed: devices.length,
       licenseTotal: state.summary.licenseTotal,
@@ -364,10 +364,10 @@ function FinalEmptyState({
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[var(--p2-border)] bg-[var(--p2-panel)] text-[var(--p2-text-soft)] [&_svg]:h-6 [&_svg]:w-6">
           {icon}
         </div>
-        <div className="mt-5 text-[28px] font-semibold leading-tight text-[var(--p2-text-soft)]">
+        <div className="mt-5 text-balance text-[28px] font-semibold leading-tight text-[var(--p2-text-soft)]">
           {title}
         </div>
-        <p className="mt-3 text-[15px] leading-7 text-[var(--p2-text-muted)]">
+        <p className="mt-3 text-balance text-[15px] leading-7 text-[var(--p2-text-muted)]">
           {copy}
         </p>
         {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
@@ -453,7 +453,7 @@ function FinalProtectionHero({
 
       <div className="relative z-10 flex h-full items-center justify-center px-6 py-10">
         <div className="relative flex w-full max-w-[940px] flex-col items-center justify-center gap-6 lg:flex-row">
-          <div className="w-full max-w-[228px] lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2">
+          <div className="w-full max-w-[264px] lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2">
             <div className="rounded-[var(--p2-radius-card)] border border-[var(--p2-border)] bg-[var(--p2-surface)]/92 p-4 shadow-[var(--p2-shadow)] backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <Image
@@ -467,11 +467,11 @@ function FinalProtectionHero({
                   Status
                 </div>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[var(--p2-text-soft)]">
+              <div className="mt-2 text-balance text-2xl font-semibold text-[var(--p2-text-soft)]">
                 {statusLabel}
               </div>
               <div className="mt-4 h-px bg-[var(--p2-border)]" />
-              <div className="mt-3 text-sm text-[var(--p2-text-soft)]">
+              <div className="mt-3 text-balance text-sm text-[var(--p2-text-soft)]">
                 {statusDetail ??
                   `${deviceCount} device${deviceCount === 1 ? "" : "s"} detected`}
               </div>
@@ -528,7 +528,9 @@ export function Prototype2FinalSummaryPage() {
               Prevention level
             </div>
             <div className="mt-1 text-[24px] font-semibold text-[var(--p2-text-soft)]">
-              {formatProtectionLevel(state.prevention.level)}
+              {finalView.hasConnectedDevices
+                ? formatProtectionLevel(state.prevention.level)
+                : "\u00A0"}
             </div>
           </div>
         </div>
@@ -576,23 +578,17 @@ export function Prototype2FinalSummaryPage() {
             onChange={setQuickViewEnabled}
           />
         </div>
-        {finalView.hasConnectedDevices ? (
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <div className="text-[11px] font-medium text-[var(--p2-text-muted)]">
-                Adversary
-              </div>
-              <div className="text-[11px] font-medium text-[var(--p2-text-muted)]">
-                Universe
-              </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="text-[11px] font-medium text-[var(--p2-text-muted)]">
+              Adversary
             </div>
-            <AdversaryIconCarousel />
+            <div className="text-[11px] font-medium text-[var(--p2-text-muted)]">
+              Universe
+            </div>
           </div>
-        ) : (
-          <div className="rounded-[var(--p2-radius-button)] border border-[var(--p2-border)] bg-[var(--p2-surface)] px-4 py-3 text-sm text-[var(--p2-text-muted)]">
-            This final route now opens in onboarding mode so the rollout starts from a clean slate.
-          </div>
-        )}
+          <AdversaryIconCarousel />
+        </div>
       </section>
     </div>
   );

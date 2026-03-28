@@ -20,7 +20,10 @@ export function getProtectionShieldSrc(
   const normalizedStatus = statusLabel.toLowerCase();
   const suffix = options?.animated ? "gif" : "png";
 
-  if (normalizedStatus.includes("custom")) {
+  if (
+    normalizedStatus.includes("custom") ||
+    normalizedStatus.includes("unconfigured")
+  ) {
     return `/prototype-2/shields/shield-custom-policy.${suffix}`;
   }
 

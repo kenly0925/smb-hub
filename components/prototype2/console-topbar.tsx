@@ -232,14 +232,14 @@ export function Prototype2ConsoleTopbar({
             <Bell className="h-4 w-4" />
           </button>
           {showThemeToggle ? (
-            <div className="flex items-center gap-1 rounded-full border border-[var(--p2-border)] p-1">
+            <div className="flex items-center gap-1 rounded-full border border-[var(--p2-border)] bg-[var(--p2-surface)] p-1">
               <button
                 type="button"
                 onClick={() => setTheme(version, "light")}
                 className={cn(
                   "inline-flex h-8 w-8 items-center justify-center rounded-full transition",
                   state.theme[version] === "light"
-                    ? "bg-[var(--p2-elevated)]"
+                    ? "border border-[var(--p2-border)] bg-[var(--p2-elevated)] shadow-[var(--p2-shadow)]"
                     : "text-[var(--p2-text-muted)]",
                 )}
                 aria-label="Use light theme"
@@ -252,7 +252,7 @@ export function Prototype2ConsoleTopbar({
                 className={cn(
                   "inline-flex h-8 w-8 items-center justify-center rounded-full transition",
                   state.theme[version] === "dark"
-                    ? "bg-[var(--p2-elevated)]"
+                    ? "border border-[var(--p2-border)] bg-[var(--p2-elevated)] shadow-[var(--p2-shadow)]"
                     : "text-[var(--p2-text-muted)]",
                 )}
                 aria-label="Use dark theme"

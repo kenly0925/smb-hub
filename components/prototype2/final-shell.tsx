@@ -186,14 +186,14 @@ export function Prototype2FinalShell({
               <Bell className="h-4 w-4" />
               <Users className="h-4 w-4" />
               <UserRound className="h-4 w-4" />
-              <div className="flex items-center gap-1 rounded-full border border-[var(--p2-border)] p-1">
+              <div className="flex items-center gap-1 rounded-full border border-[var(--p2-border)] bg-[var(--p2-surface)] p-1">
                 <button
                   type="button"
                   onClick={() => setTheme("final", "dark")}
                   className={cn(
                     "inline-flex h-7 w-7 items-center justify-center rounded-full transition",
                     state.theme.final === "dark"
-                      ? "bg-[var(--p2-elevated)]"
+                      ? "border border-[var(--p2-border)] bg-[var(--p2-elevated)] shadow-[var(--p2-shadow)]"
                       : "text-[var(--p2-text-muted)]",
                   )}
                   aria-label="Use dark theme"
@@ -206,7 +206,7 @@ export function Prototype2FinalShell({
                   className={cn(
                     "inline-flex h-7 w-7 items-center justify-center rounded-full transition",
                     state.theme.final === "light"
-                      ? "bg-[var(--p2-elevated)]"
+                      ? "border border-[var(--p2-border)] bg-[var(--p2-elevated)] shadow-[var(--p2-shadow)]"
                       : "text-[var(--p2-text-muted)]",
                   )}
                   aria-label="Use light theme"
