@@ -4,6 +4,14 @@ export type Prototype2Version = "ideal" | "final";
 
 export type ProtectionLevel = "basic" | "enhanced" | "maximum";
 
+export type TodoTaskId = "sensor" | "prevention";
+
+export type FinalOnboardingStage =
+  | "confirm-user"
+  | "download-agent"
+  | "configuring"
+  | "complete";
+
 export type QuarantineAction = "release" | "delete";
 
 export type InstallerStage = "idle" | "form" | "progress" | "complete";
@@ -123,6 +131,7 @@ export type DeviceRecord = {
   status: "Connected" | "Connected recently";
   x: number;
   y: number;
+  positionPinned?: boolean;
 };
 
 export type DeviceGroup = {
@@ -132,6 +141,7 @@ export type DeviceGroup = {
   y: number;
   width: number;
   height: number;
+  restricted?: boolean;
 };
 
 export type DevicesState = {
@@ -162,10 +172,16 @@ export type UsersState = {
 export type FinalOnboardingState = {
   devices: DeviceRecord[];
   users: UserRecord[];
+  stage: FinalOnboardingStage;
+  configurationProgress: number;
 };
 
 export type Prototype2UiState = {
   finalNavOpen: boolean;
+  dismissedTodos: {
+    ideal: TodoTaskId[];
+    final: TodoTaskId[];
+  };
 };
 
 export type Prototype2DemoState = {

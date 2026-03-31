@@ -121,7 +121,7 @@ export function Prototype1Shell({
   const [submenuLabel, setSubmenuLabel] = useState<string | null>(null);
   const [submenuTop, setSubmenuTop] = useState(0);
   const pathname = usePathname();
-  const { state, toggleNav, setNavOpen, resetDemo } = usePrototype1Demo();
+  const { state, toggleNav, setNavOpen } = usePrototype1Demo();
   const headerCopy = getHeaderCopy(pathname);
   const activeNavLabel = getActiveNavLabel(pathname);
   const hoveredNavItem = navItems.find((item) => item.label === submenuLabel);
@@ -194,23 +194,7 @@ export function Prototype1Shell({
               );
             })}
           </div>
-          <div className="absolute inset-x-0 bottom-0 flex h-9 items-center justify-between border-t border-white/10 bg-white/4 px-2">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={resetDemo}
-                className="p1-link text-[11px] font-medium underline underline-offset-2"
-              >
-                Reset
-              </button>
-              <Link
-                href="/prototype-1/windows-desktop"
-                onClick={() => setNavOpen(false)}
-                className="p1-link text-[11px] font-medium underline underline-offset-2 transition"
-              >
-                Open Windows
-              </Link>
-            </div>
+          <div className="absolute inset-x-0 bottom-0 flex h-9 items-center justify-end border-t border-white/10 bg-white/4 px-2">
             <button
               type="button"
               onClick={() => setNavOpen(false)}

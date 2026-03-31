@@ -1,0 +1,206 @@
+.card {
+  --usb-card-background: #242427;
+  --usb-card-border: #2f3137;
+  --usb-card-grid: rgba(255, 255, 255, 0.05);
+  --usb-card-text: #f2f2f4;
+  --usb-card-muted: #8d8d96;
+  --usb-toggle-on: #8fb8ff;
+  --usb-toggle-off: #41434c;
+  --usb-toggle-thumb: #4d4d56;
+  --usb-hardware-offset-x: 0px;
+  --usb-hardware-offset-y: 0px;
+  --usb-hardware-scale: 1;
+
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 220px;
+  height: 100%;
+  padding: 16px 20px 24px;
+  overflow: hidden;
+  border: 1px solid var(--usb-card-border);
+  border-radius: var(--p2-radius-card);
+  background: var(--usb-card-background);
+  isolation: isolate;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--usb-card-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--usb-card-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--usb-card-muted);
+}
+
+.scene {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+}
+
+.connectionScene {
+  position: absolute;
+  inset: 0;
+}
+
+.hardwareGroup {
+  position: absolute;
+  inset: 0;
+  transform: translate(
+      var(--usb-hardware-offset-x),
+      var(--usb-hardware-offset-y)
+    )
+    scale(var(--usb-hardware-scale));
+  transform-origin: right bottom;
+  transition: transform 200ms ease;
+}
+
+.laptop {
+  position: absolute;
+  right: -12px;
+  bottom: -84px;
+  width: 552px;
+  max-width: none;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+.cable {
+  position: absolute;
+  left: -54px;
+  top: 58%;
+  width: 396px;
+  max-width: 74%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: transform 200ms ease;
+}
+
+.statusCluster {
+  position: absolute;
+  left: 70px;
+  top: 58%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  transform: translateY(-50%);
+  transition: transform 200ms ease;
+}
+
+.statusLabel,
+.statusIconShell {
+  background: var(--usb-card-background);
+}
+
+.statusLabel {
+  padding: 4px;
+  border-radius: 10px;
+  color: var(--usb-card-text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.statusIconShell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.statusIcon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.connectionSceneAllowed .cable,
+.connectionSceneAllowed .statusCluster {
+  transform: translateY(-50%) translateX(0);
+}
+
+.connectionSceneBlocked .cable,
+.connectionSceneBlocked .statusCluster {
+  transform: translateY(-50%) translateX(-54px);
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footerTitle {
+  color: var(--usb-card-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.toggle {
+  position: relative;
+  width: 60px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.toggleTrack {
+  position: absolute;
+  inset: 0;
+  border-radius: 13px;
+  transition: background-color 200ms ease;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: var(--usb-toggle-thumb);
+  transition: transform 200ms ease;
+}
+
+.toggleOn .toggleTrack {
+  background: var(--usb-toggle-on);
+}
+
+.toggleOff .toggleTrack {
+  background: var(--usb-toggle-off);
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(24px);
+}
+
+.toggleOff .toggleThumb {
+  transform: translateX(0);
+}
+
+@media (max-width: 1280px) {
+  .card {
+    --usb-hardware-offset-x: -48px;
+    --usb-hardware-scale: 0.9;
+  }
+}

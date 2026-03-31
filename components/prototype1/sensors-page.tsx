@@ -10,7 +10,8 @@ import {
   TextInput,
 } from "@/components/prototype1/ui";
 import { maskValue } from "@/lib/utils";
-import { Eye, EyeOff, MonitorDown } from "lucide-react";
+import { buildPrototype1WindowsDesktopHref } from "@/lib/windows-desktop";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 const windowsRows = [
@@ -117,15 +118,7 @@ export function Prototype1SensorsPage() {
 
       <div className="mt-6 space-y-4">
         <ShellCard className="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="text-lg font-semibold text-white">Windows</div>
-            <Link href="/prototype-1/windows-desktop">
-              <Button variant="primary">
-                <MonitorDown className="h-4 w-4" />
-                Open installer desktop
-              </Button>
-            </Link>
-          </div>
+          <div className="mb-4 text-lg font-semibold text-white">Windows</div>
           <DataTable
             headers={["Version", "System", "Action"]}
             tableClassName="table-fixed"
@@ -135,7 +128,10 @@ export function Prototype1SensorsPage() {
                 <td className="w-1/3 px-4 py-3 text-[var(--p1-text-soft)]">{row[0]}</td>
                 <td className="w-1/3 px-4 py-3 text-[var(--p1-text-soft)]">{row[1]}</td>
                 <td className="w-1/3 px-4 py-3">
-                  <Link href="/prototype-1/windows-desktop" className="p1-link text-sm">
+                  <Link
+                    href={buildPrototype1WindowsDesktopHref("/prototype-1/sensors")}
+                    className="p1-link text-sm"
+                  >
                     Download
                   </Link>
                 </td>

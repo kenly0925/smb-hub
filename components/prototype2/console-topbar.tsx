@@ -2,18 +2,49 @@
 
 import { P2Pill, P2Tabs, p2ButtonClasses } from "@/components/prototype2/ui";
 import { cn } from "@/lib/utils";
-import { Bell, Moon, Sun, Users, X } from "lucide-react";
+import {
+  Bell,
+  Check,
+  Clock3,
+  Crosshair,
+  Moon,
+  Sun,
+  Users,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { usePrototype2Demo } from "@/components/prototype2/demo-provider";
-import { Prototype2Version } from "@/lib/prototype2/types";
+import { Prototype2Version, TodoTaskId } from "@/lib/prototype2/types";
+import { buildPrototype2WindowsDesktopHref } from "@/lib/windows-desktop";
 
 export const prototype2UserName = "Christie Burke";
+const TODO_DATE_LABEL = "05/31/2023";
 const usernameBackgrounds = Array.from(
   { length: 7 },
   (_, index) => `/prototype-2/username-backgrounds/user-initial-shape-${index + 1}.svg`,
 );
+
+type ToDoPanelAction = {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  variant: "primary" | "secondary";
+};
+
+type ToDoPanelState = {
+  count: 0 | 1;
+  title: string;
+  copy: string;
+  taskId?: TodoTaskId;
+  dateLabel?: string;
+  badgeLabel?: string;
+  dismissLabel?: string;
+  actions?: ToDoPanelAction[];
+  success?: boolean;
+};
 
 export function pickUsernameBackground(seed: string) {
   const hash = Array.from(seed).reduce(
@@ -48,7 +79,8 @@ export function Prototype2ConsoleTopbar({
   showThemeToggle?: boolean;
   className?: string;
 }) {
-  const { state, setTheme } = usePrototype2Demo();
+  const { state, setTheme, dismissTodo } = usePrototype2Demo();
+  const pathname = usePathname();
   const [notificationsPhase, setNotificationsPhase] = useState<
     "closed" | "opening" | "open" | "closing"
   >("closed");
@@ -63,96 +95,70 @@ export function Prototype2ConsoleTopbar({
     version === "ideal"
       ? state.users.items.length
       : state.finalOnboarding.users.length;
-  const onboardingTasks = useMemo(() => {
-    if (version === "ideal") {
-      return [
-        {
-          id: "sensor",
-          title: "Install your first sensor",
-          copy:
-            "Download the sensor package and connect the first device so the dashboard starts filling in with live inventory.",
-          status: "Completed",
-          tone: "green" as const,
-          meta: "Done",
-        },
-        {
-          id: "protection",
-          title: "Review prevention level",
-          copy:
-            "Confirm the current protection level and decide whether you want to keep maximum prevention enabled for the team.",
-          status: "In progress",
-          tone: "blue" as const,
-          meta: "1 task left",
-        },
-        {
-          id: "usb",
-          title: "Create your USB allow list",
-          copy:
-            "Add trusted USB devices to the allow list so the team can use approved media without extra friction.",
-          status: "Suggested",
-          tone: "teal" as const,
-          meta: "Recommended",
-        },
-        {
-          id: "users",
-          title: "Invite another administrator",
-          copy:
-            "Add one more admin account to make handoff and day-to-day monitoring easier as the workspace grows.",
-          status: "Suggested",
-          tone: "neutral" as const,
-          meta: "Optional",
-        },
-      ];
-    }
-
-    const sensorInstalled = state.finalOnboarding.devices.length > 0;
-    const userInvited = state.finalOnboarding.users.length > 0;
-
-    return [
-      {
-        id: "sensor",
-        title: "Install your first sensor",
-        copy:
-          "Download the sensor package and connect the first device so the onboarding dashboard can start filling in with live inventory.",
-        status: sensorInstalled ? "Completed" : "Start here",
-        tone: sensorInstalled ? ("green" as const) : ("blue" as const),
-        meta: sensorInstalled ? "Done" : "Required",
-      },
-      {
-        id: "protection",
-        title: "Review prevention level",
-        copy:
-          "Choose the level you want to launch with before the first machine checks in.",
-        status: "In progress",
-        tone: "teal" as const,
-        meta: "Recommended",
-      },
-      {
-        id: "usb",
-        title: "Create your USB allow list",
-        copy:
-          "Set the starting USB rules now so the first device inherits the policy on day one.",
-        status: "Suggested",
-        tone: "teal" as const,
-        meta: "Optional",
-      },
-      {
-        id: "users",
-        title: "Invite another administrator",
-        copy:
-          "Add one more admin account to make handoff and day-to-day monitoring easier as the workspace grows.",
-        status: userInvited ? "Completed" : "Suggested",
-        tone: userInvited ? ("green" as const) : ("neutral" as const),
-        meta: userInvited ? "Done" : "Optional",
-      },
-    ];
-  }, [state.finalOnboarding.devices.length, state.finalOnboarding.users.length, version]);
-  const completedOnboardingTasks = onboardingTasks.filter(
-    (task) => task.status === "Completed",
-  ).length;
   const notificationsVisible = notificationsPhase !== "closed";
   const notificationsActive =
     notificationsPhase === "opening" || notificationsPhase === "open";
+  const isDarkTheme = state.theme[version] === "dark";
+  const closeNotifications = () => setNotificationsPhase("closing");
+  const tutorialsHref = buildPrototype2WindowsDesktopHref(version, pathname);
+  const dismissedTodos = state.ui.dismissedTodos[version];
+  const openPreventionPolicy = () => {
+    onTabChange("next-gen-av");
+    closeNotifications();
+  };
+  const activeToDoPanel: ToDoPanelState =
+    version === "final" && state.finalOnboarding.devices.length === 0
+      ? {
+          taskId: "sensor",
+          count: 1,
+          title: "Install your first sensor",
+          copy:
+            "In order to have your devices protected, you need to first install the Falcon sensor on your first device.",
+          dateLabel: TODO_DATE_LABEL,
+          badgeLabel: "Required",
+          actions: [
+            {
+              label: "Download sensor",
+              href: tutorialsHref,
+              variant: "primary",
+            },
+            {
+              label: "Watch installation tutorials",
+              href: tutorialsHref,
+              variant: "secondary",
+            },
+          ],
+        }
+      : state.prevention.level !== "maximum" &&
+          !dismissedTodos.includes("prevention")
+        ? {
+            taskId: "prevention",
+            count: 1,
+            title: "Turn up your prevention policy",
+            copy:
+              "It appears you are currently using a less aggressive policy. As long as everything in your network continues to function, we recommend increasing to the next level of prevention policy.",
+            dateLabel: TODO_DATE_LABEL,
+            dismissLabel: "Dismiss",
+            actions: [
+              {
+                label: "Change prevention policy",
+                onClick: openPreventionPolicy,
+                variant: "primary",
+              },
+              {
+                label: "Learn about prevention levels",
+                onClick: openPreventionPolicy,
+                variant: "secondary",
+              },
+            ],
+          }
+        : {
+            count: 0,
+            title: "You're all good!",
+            copy:
+              "We don't need anything from you at the moment. We'll let you know if that changes.",
+            success: true,
+          };
 
   useEffect(() => {
     if (notificationsPhase === "opening") {
@@ -277,7 +283,8 @@ export function Prototype2ConsoleTopbar({
           />
           <aside
             className={cn(
-              "fixed right-0 top-0 z-40 h-screen w-full max-w-[396px] border-l border-[var(--p2-border)] bg-[var(--p2-popover-bg)] p-5 shadow-[var(--p2-shadow-popover)] transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform",
+              "fixed right-4 top-[88px] z-40 h-[min(650px,calc(100vh-7rem))] w-[min(19rem,calc(100vw-2rem))] overflow-hidden rounded-[8px] border border-[var(--p2-border)] p-4 shadow-[var(--p2-shadow-popover)] transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform md:right-8 md:top-[92px] md:w-[294px]",
+              isDarkTheme ? "bg-[var(--p2-elevated)]" : "bg-[var(--p2-popover-bg)]",
               notificationsActive
                 ? "translate-x-0 opacity-100"
                 : "translate-x-full opacity-0",
@@ -291,48 +298,120 @@ export function Prototype2ConsoleTopbar({
                   : "translate-y-4 opacity-0",
               )}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-medium text-[var(--p2-text-muted)]">
-                    Onboarding tasks
+              <div className="flex h-full flex-col">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Crosshair className="h-4 w-4 text-[var(--p2-text-muted)]" />
+                    <div className="text-[15px] font-semibold text-[var(--p2-text-soft)]">
+                      To-do list
+                    </div>
+                    <span
+                      className={cn(
+                        "inline-flex min-w-4 items-center justify-center rounded-[4px] px-1.5 py-[1px] text-[10px] font-semibold leading-none",
+                        activeToDoPanel.count > 0
+                          ? "bg-[#ff4d57] text-white"
+                          : "bg-black/55 text-[var(--p2-text-soft)]",
+                      )}
+                    >
+                      {activeToDoPanel.count}
+                    </span>
                   </div>
-                  <div className="mt-2 text-2xl font-semibold text-[var(--p2-text-soft)]">
-                    Finish setup
-                  </div>
-                  <div className="mt-2 text-sm text-[var(--p2-text-muted)]">
-                    {completedOnboardingTasks} of {onboardingTasks.length} tasks help this workspace feel ready for day one.
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setNotificationsPhase("closing")}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--p2-radius-button)] transition hover:bg-[var(--p2-elevated)]"
-                  aria-label="Close notifications"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                {onboardingTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="rounded-[var(--p2-radius-card)] border border-[var(--p2-border)] bg-[var(--p2-surface)] p-4"
+                  <button
+                    type="button"
+                    onClick={closeNotifications}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-[4px] text-[var(--p2-text-muted)] transition hover:bg-[var(--p2-elevated)] hover:text-[var(--p2-text-soft)]"
+                    aria-label="Close notifications"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <P2Pill tone={task.tone}>{task.status}</P2Pill>
-                      <span className="text-xs font-medium text-[var(--p2-text-muted)]">
-                        {task.meta}
-                      </span>
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mt-5 flex-1">
+                  {activeToDoPanel.success ? (
+                    <div className="max-w-[232px]">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#19ddc4] text-[#2b3038]">
+                        <Check className="h-4 w-4 stroke-[3]" />
+                      </div>
+                      <div className="mt-4 text-[28px] font-semibold leading-none text-[var(--p2-text-soft)]">
+                        {activeToDoPanel.title}
+                      </div>
+                      <p className="mt-4 text-[12px] leading-6 text-[var(--p2-text-muted)]">
+                        {activeToDoPanel.copy}
+                      </p>
                     </div>
-                    <div className="mt-3 text-base font-semibold text-[var(--p2-text-soft)]">
-                      {task.title}
+                  ) : (
+                    <div className="max-w-[260px]">
+                      <div className="flex items-center justify-between gap-3 text-[10px] font-medium text-[var(--p2-text-muted)]">
+                        <div className="flex items-center gap-1.5">
+                          <Clock3 className="h-3 w-3" />
+                          <span>{activeToDoPanel.dateLabel}</span>
+                        </div>
+                        {activeToDoPanel.dismissLabel ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (activeToDoPanel.taskId) {
+                                dismissTodo(version, activeToDoPanel.taskId);
+                              }
+                            }}
+                            className="transition hover:text-[var(--p2-text-soft)]"
+                          >
+                            {activeToDoPanel.dismissLabel}
+                          </button>
+                        ) : activeToDoPanel.badgeLabel ? (
+                          <span className="inline-flex items-center rounded-[4px] border border-[#7a2a33] bg-[#4b1b22] px-1.5 py-[2px] text-[10px] font-semibold text-[#ff6a73]">
+                            {activeToDoPanel.badgeLabel}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-5 text-[22px] font-semibold leading-tight text-[var(--p2-text-soft)]">
+                        {activeToDoPanel.title}
+                      </div>
+                      <p className="mt-3 text-[12px] leading-6 text-[var(--p2-text-muted)]">
+                        {activeToDoPanel.copy}
+                      </p>
+
+                      {activeToDoPanel.actions?.length ? (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {activeToDoPanel.actions.map((action) =>
+                            action.href ? (
+                              <Link
+                                key={action.label}
+                                href={action.href}
+                                onClick={closeNotifications}
+                                className={p2ButtonClasses({
+                                  variant: action.variant,
+                                  size: "sm",
+                                  className:
+                                    "h-7 rounded-[3px] px-2.5 text-[10px] font-semibold shadow-none",
+                                })}
+                              >
+                                {action.label}
+                              </Link>
+                            ) : (
+                              <button
+                                key={action.label}
+                                type="button"
+                                onClick={action.onClick}
+                                className={p2ButtonClasses({
+                                  variant: action.variant,
+                                  size: "sm",
+                                  className:
+                                    "h-7 rounded-[3px] px-2.5 text-[10px] font-semibold shadow-none",
+                                })}
+                              >
+                                {action.label}
+                              </button>
+                            ),
+                          )}
+                        </div>
+                      ) : null}
+
+                      <div className="mt-4 ml-auto h-px w-14 bg-[var(--p2-border-strong)]" />
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-[var(--p2-text-muted)]">
-                      {task.copy}
-                    </p>
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             </div>
           </aside>

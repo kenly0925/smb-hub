@@ -9,7 +9,16 @@ import {
   Lock,
   MoreVertical,
 } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  Children,
+  isValidElement,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 
 export function Prototype2ThemeRoot({
   theme,
@@ -146,6 +155,7 @@ function FieldFrame({
   error,
   disabled,
   locked,
+  focusBorderClassName,
   className,
   children,
 }: {
@@ -153,6 +163,7 @@ function FieldFrame({
   error?: string;
   disabled?: boolean;
   locked?: boolean;
+  focusBorderClassName?: string;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -162,16 +173,19 @@ function FieldFrame({
         <div className="mb-2 text-xs text-[var(--p2-text-muted)]">{label}</div>
       ) : null}
       <div
-        className={cn(
-          "flex min-h-10 items-center rounded-[var(--p2-radius-field)] border bg-[var(--p2-surface)] px-3 text-sm text-[var(--p2-text)] transition",
-          error
-            ? "border-[#ff4d57]"
-            : disabled
-              ? "border-[var(--p2-border-strong)] opacity-70"
-              : "border-[var(--p2-border)] focus-within:border-[var(--p2-accent)]",
-        )}
-      >
-        {children}
+          className={cn(
+            "flex min-h-10 items-center rounded-[var(--p2-radius-field)] border bg-[var(--p2-surface)] px-3 text-sm text-[var(--p2-text)] transition",
+            error
+              ? "border-[#ff4d57]"
+              : disabled
+                ? "border-[var(--p2-border-strong)] opacity-70"
+                : cn(
+                    "border-[var(--p2-border)]",
+                    focusBorderClassName ?? "focus-within:border-[var(--p2-accent)]",
+                  ),
+          )}
+        >
+          {children}
         {locked ? <Lock className="ml-auto h-3.5 w-3.5 text-[var(--p2-text-muted)]" /> : null}
       </div>
       {error ? (
@@ -208,6 +222,87 @@ export function P2Input({
   );
 }
 
+function getDropdownPosition({
+  triggerBounds,
+  menuWidth,
+  menuHeight,
+  align = "left",
+}: {
+  triggerBounds: DOMRect;
+  menuWidth: number;
+  menuHeight: number;
+  align?: "left" | "right";
+}) {
+  const viewportPadding = 12;
+  const verticalOffset = 12;
+  const alignedLeft =
+    align === "right" ? triggerBounds.right - menuWidth : triggerBounds.left;
+  const left = Math.min(
+    window.innerWidth - menuWidth - viewportPadding,
+    Math.max(viewportPadding, alignedLeft),
+  );
+  const canOpenDown =
+    triggerBounds.bottom + verticalOffset + menuHeight <=
+    window.innerHeight - viewportPadding;
+  const canOpenUp =
+    triggerBounds.top - verticalOffset - menuHeight >= viewportPadding;
+  const top = canOpenDown
+    ? triggerBounds.bottom + verticalOffset
+    : canOpenUp
+      ? triggerBounds.top - menuHeight - verticalOffset
+      : Math.max(viewportPadding, window.innerHeight - menuHeight - viewportPadding);
+
+  return { left, top };
+}
+
+function getSelectOptions(children: React.ReactNode) {
+  return Children.toArray(children).flatMap((child) => {
+    if (!isValidElement(child) || child.type !== "option") {
+      return [];
+    }
+
+    const option = child as React.ReactElement<
+      React.OptionHTMLAttributes<HTMLOptionElement>
+    >;
+    const value = option.props.value?.toString() ?? option.props.children?.toString() ?? "";
+
+    return [
+      {
+        value,
+        label: option.props.children,
+        disabled: option.props.disabled,
+      },
+    ];
+  });
+}
+
+function getPrototypeThemeClass(element: HTMLElement | null) {
+  const themeRoot = element?.closest("[data-p2-theme]");
+  const theme = themeRoot?.getAttribute("data-p2-theme");
+
+  return theme === "light" ? "p2-theme-light" : "p2-theme-dark";
+}
+
+function getDropdownSurfaceClassName(themeClass: string) {
+  return cn(
+    "fixed z-[80] overflow-hidden rounded-[10px] border shadow-[var(--p2-shadow-popover)]",
+    themeClass === "p2-theme-light"
+      ? "border-zinc-200 bg-white"
+      : "border-[var(--p2-border)] bg-[var(--p2-surface)]",
+  );
+}
+
+function getDropdownItemClassName(themeClass: string, active = false) {
+  return cn(
+    "flex h-10 w-full items-center border-0 border-b px-3 text-left text-sm font-normal outline-none transition-colors focus:outline-none focus-visible:outline-none last:border-b-0 disabled:cursor-not-allowed disabled:text-[var(--p2-text-muted)]",
+    themeClass === "p2-theme-light"
+      ? "border-zinc-200 bg-white text-[var(--p2-text)] hover:bg-zinc-100"
+      : "border-[var(--p2-border)] bg-[var(--p2-surface)] text-[var(--p2-text)] hover:bg-[var(--p2-elevated)]",
+    active &&
+      (themeClass === "p2-theme-light" ? "bg-zinc-100" : "bg-[var(--p2-elevated)]"),
+  );
+}
+
 export function P2Select({
   label,
   error,
@@ -220,21 +315,181 @@ export function P2Select({
   error?: string;
   locked?: boolean;
 }) {
+  const {
+    value,
+    defaultValue,
+    disabled,
+    onChange,
+    name,
+  } = props;
+  const options = useMemo(() => getSelectOptions(children), [children]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ left: number; top: number; width: number } | null>(
+    null,
+  );
+  const [portalThemeClass, setPortalThemeClass] = useState("p2-theme-dark");
+  const initialValue =
+    defaultValue?.toString() ?? value?.toString() ?? options[0]?.value ?? "";
+  const [internalValue, setInternalValue] = useState(initialValue);
+  const isControlled = value !== undefined;
+  const selectedValue = isControlled
+    ? value?.toString() ?? ""
+    : options.some((option) => option.value === internalValue)
+      ? internalValue
+      : options[0]?.value ?? "";
+  const selectedOption =
+    options.find((option) => option.value === selectedValue) ?? options[0] ?? null;
+
+  useLayoutEffect(() => {
+    setPortalThemeClass(getPrototypeThemeClass(rootRef.current));
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function updateMenuPosition() {
+      const triggerBounds =
+        rootRef.current?.parentElement?.getBoundingClientRect() ??
+        rootRef.current?.getBoundingClientRect();
+
+      if (!triggerBounds) {
+        return;
+      }
+
+      const menuWidth = Math.max(triggerBounds.width, 160);
+      const menuHeight = options.length * 40;
+      const nextPosition = getDropdownPosition({
+        triggerBounds,
+        menuWidth,
+        menuHeight,
+      });
+
+      setMenuPosition({
+        ...nextPosition,
+        width: menuWidth,
+      });
+    }
+
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [open, options.length]);
+
+  useEffect(() => {
+    function handleClick(event: MouseEvent) {
+      if (
+        !rootRef.current?.contains(event.target as Node) &&
+        !menuRef.current?.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, []);
+
   return (
     <FieldFrame
       label={label}
       error={error}
-      disabled={props.disabled}
+      disabled={disabled}
       locked={locked}
+      focusBorderClassName="focus-within:border-[var(--p2-border)]"
       className={className}
     >
-      <select
-        {...props}
-        className="w-full appearance-none bg-transparent pr-5 outline-none"
-      >
-        {children}
-      </select>
-      <ChevronDown className="h-4 w-4 text-[var(--p2-text-muted)]" />
+      <div ref={rootRef} className="w-full">
+        {name ? <input type="hidden" name={name} value={selectedValue} /> : null}
+        <button
+          type="button"
+          onClick={() => {
+            if (!disabled && !locked) {
+              setOpen((current) => !current);
+            }
+          }}
+          disabled={disabled}
+          className="flex w-full appearance-none items-center gap-3 border-0 bg-transparent text-left outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+        >
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate",
+              selectedOption ? "text-[var(--p2-text)]" : "text-[var(--p2-text-muted)]",
+            )}
+          >
+            {selectedOption?.label ?? ""}
+          </span>
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 shrink-0 text-[var(--p2-text-muted)]",
+            )}
+          />
+        </button>
+      </div>
+      {open && menuPosition && typeof document !== "undefined"
+        ? createPortal(
+            <div className={portalThemeClass}>
+              <div
+                ref={menuRef}
+                className={getDropdownSurfaceClassName(portalThemeClass)}
+                style={{
+                  left: menuPosition.left,
+                  top: menuPosition.top,
+                  width: menuPosition.width,
+                }}
+                role="listbox"
+              >
+                {options.map((option) => {
+                  const active = option.value === selectedValue;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      role="option"
+                      disabled={option.disabled}
+                      onClick={() => {
+                        if (!isControlled) {
+                          setInternalValue(option.value);
+                        }
+
+                        onChange?.({
+                          target: {
+                            value: option.value,
+                            name: name ?? "",
+                          },
+                          currentTarget: {
+                            value: option.value,
+                            name: name ?? "",
+                          },
+                        } as React.ChangeEvent<HTMLSelectElement>);
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        getDropdownItemClassName(portalThemeClass, active),
+                        "justify-start",
+                      )}
+                      aria-selected={active}
+                    >
+                      <span className="min-w-0 truncate">{option.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </FieldFrame>
   );
 }
@@ -396,33 +651,43 @@ export function P2Tabs({
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [trackStyle, setTrackStyle] = useState({ left: 0, width: 0 });
   const [hasMeasuredTrack, setHasMeasuredTrack] = useState(false);
+  const activeIndex = tabs.findIndex((tab) => tab.id === activeId);
+  const tabsSignature = tabs
+    .map((tab) => `${tab.id}:${tab.label}:${tab.badge ?? ""}`)
+    .join("|");
 
   useLayoutEffect(() => {
     function updateTrackPosition() {
-      const activeIndex = tabs.findIndex((tab) => tab.id === activeId);
       const activeTab = tabRefs.current[activeIndex >= 0 ? activeIndex : 0];
 
       if (!activeTab) {
         return;
       }
 
-      setTrackStyle({
-        left: activeTab.offsetLeft,
-        width: activeTab.offsetWidth,
-      });
-      setHasMeasuredTrack(true);
+      const nextLeft = activeTab.offsetLeft;
+      const nextWidth = activeTab.offsetWidth;
+
+      setTrackStyle((current) =>
+        current.left === nextLeft && current.width === nextWidth
+          ? current
+          : {
+              left: nextLeft,
+              width: nextWidth,
+            },
+      );
+      setHasMeasuredTrack((current) => (current ? current : true));
     }
 
     updateTrackPosition();
     window.addEventListener("resize", updateTrackPosition);
 
     return () => window.removeEventListener("resize", updateTrackPosition);
-  }, [activeId, tabs]);
+  }, [activeIndex, tabsSignature]);
 
   return (
     <div
       className={cn(
-        "w-full max-w-[48rem]",
+        "w-full max-w-[34rem]",
         className,
       )}
     >
@@ -457,7 +722,7 @@ export function P2Tabs({
                 tabRefs.current[tabs.findIndex((candidate) => candidate.id === tab.id)] = node;
               }}
               className={cn(
-                "relative z-10 flex h-11 min-w-[8.75rem] flex-1 items-center justify-center gap-2 px-3 text-[15px] font-semibold transition-colors duration-200",
+                "relative z-10 flex h-11 min-w-[7.25rem] flex-1 items-center justify-center gap-2 px-4 text-[15px] font-semibold transition-colors duration-200",
                 active
                   ? "text-[var(--p2-tab-active-text)]"
                   : "text-[var(--p2-text-muted)] hover:text-[var(--p2-text-soft)]",
@@ -529,17 +794,67 @@ export function P2Menu({
   align = "right",
   className,
 }: {
-  items: Array<{ id: string; label: string; checked?: boolean }>;
+  items: Array<{
+    id: string;
+    label: string;
+    checked?: boolean;
+    tone?: "default" | "danger";
+  }>;
   onSelect: (id: string) => void;
   align?: "left" | "right";
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ left: number; top: number } | null>(
+    null,
+  );
+  const [portalThemeClass, setPortalThemeClass] = useState("p2-theme-dark");
+
+  useLayoutEffect(() => {
+    setPortalThemeClass(getPrototypeThemeClass(rootRef.current));
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function updateMenuPosition() {
+      const triggerBounds = buttonRef.current?.getBoundingClientRect();
+
+      if (!triggerBounds) {
+        return;
+      }
+
+      const nextPosition = getDropdownPosition({
+        triggerBounds,
+        menuWidth: 208,
+        menuHeight: items.length * 40,
+        align,
+      });
+
+      setMenuPosition(nextPosition);
+    }
+
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [align, items.length, open]);
 
   useEffect(() => {
     function handleClick(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      if (
+        !rootRef.current?.contains(event.target as Node) &&
+        !menuRef.current?.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -551,39 +866,54 @@ export function P2Menu({
   return (
     <div ref={rootRef} className={cn("relative", className)}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--p2-radius-button)] border border-[var(--p2-border)] bg-[var(--p2-surface)] text-[var(--p2-text)] transition hover:bg-[var(--p2-elevated)]"
+        className="inline-flex h-10 w-10 appearance-none items-center justify-center rounded-[var(--p2-radius-button)] border border-[var(--p2-border)] bg-[var(--p2-surface)] text-[var(--p2-text)] outline-none ring-0 transition hover:bg-[var(--p2-elevated)] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
         aria-label="Open menu"
       >
         <MoreVertical className="h-4 w-4" />
       </button>
-      {open ? (
-        <div
-          className={cn(
-            "absolute top-[calc(100%+8px)] z-30 min-w-52 rounded-[var(--p2-radius-popover)] border border-[var(--p2-border)] bg-[var(--p2-popover-bg)] p-2 shadow-[var(--p2-shadow-popover)]",
-            align === "right" ? "right-0" : "left-0",
-          )}
-        >
-          {items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => {
-                onSelect(item.id);
-                setOpen(false);
-              }}
-              className="flex w-full items-center justify-between rounded-[var(--p2-radius-button)] px-3 py-2 text-left text-sm text-[var(--p2-text)] transition hover:bg-[var(--p2-elevated)]"
-            >
-              <span className="flex items-center gap-2">
-                {item.checked ? <Check className="h-4 w-4 text-[var(--p2-accent)]" /> : null}
-                {item.label}
-              </span>
-              {item.checked ? <Check className="h-4 w-4" /> : null}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      {open && menuPosition && typeof document !== "undefined"
+        ? createPortal(
+            <div className={portalThemeClass}>
+              <div
+                ref={menuRef}
+                className={cn(
+                  getDropdownSurfaceClassName(portalThemeClass),
+                  "min-w-52",
+                )}
+                style={{
+                  left: menuPosition.left,
+                  top: menuPosition.top,
+                  width: 208,
+                }}
+              >
+                {items.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(item.id);
+                      setOpen(false);
+                    }}
+                    className={cn(
+                      getDropdownItemClassName(portalThemeClass, item.checked),
+                      "justify-start",
+                      item.tone === "danger" &&
+                        (portalThemeClass === "p2-theme-light"
+                          ? "text-[#d92d3a]"
+                          : "text-[#ff6b74]"),
+                    )}
+                  >
+                    <span className="min-w-0 truncate">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
@@ -592,12 +922,16 @@ export function P2Table({
   headers,
   children,
   className,
+  tableClassName,
+  colGroup,
   variant = "default",
   stickyHeader = true,
 }: {
   headers: React.ReactNode[];
   children: React.ReactNode;
   className?: string;
+  tableClassName?: string;
+  colGroup?: React.ReactNode;
   variant?: "default" | "plain";
   stickyHeader?: boolean;
 }) {
@@ -610,7 +944,13 @@ export function P2Table({
         className,
       )}
     >
-      <table className="min-w-full border-collapse text-left text-sm [&_tbody_tr]:bg-[var(--p2-table-row)] [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[var(--p2-table-row-hover)] [&_td:last-child]:w-px [&_td:last-child]:whitespace-nowrap [&_th:last-child]:w-px [&_th:last-child]:whitespace-nowrap">
+      <table
+        className={cn(
+          "min-w-full border-collapse text-left text-sm [&_tbody_tr]:bg-[var(--p2-table-row)] [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[var(--p2-table-row-hover)] [&_td:last-child]:w-px [&_td:last-child]:whitespace-nowrap [&_th:last-child]:w-px [&_th:last-child]:whitespace-nowrap",
+          tableClassName,
+        )}
+      >
+        {colGroup}
         <thead className="text-[var(--p2-text-soft)]">
           <tr>
             {headers.map((header, index) => (

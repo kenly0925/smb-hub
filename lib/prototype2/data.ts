@@ -265,7 +265,7 @@ function createQuarantineItems(): QuarantineItem[] {
   return [
     {
       id: "q1",
-      fileName: "Draft1-changes-in-red-from-Simon.doc",
+      fileName: "AcrobatPro_2020_LicensePatch.exe",
       quarantinedAt: "Feb 26, 2020 12:18:31",
       deviceId: "32cb7cgg8878d9gh37f534d",
       x: -2.8,
@@ -275,7 +275,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q2",
-      fileName: "ATTACHEMENT 836128956.html",
+      fileName: "Zoom-Codec-Upgrade_5.1.2.msi",
       quarantinedAt: "Jan 23, 2020 10:46:44",
       deviceId: "92kb7jtt5879d9gh37f534d5",
       x: 0,
@@ -285,7 +285,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q3",
-      fileName: "FunnyMemeOMG.gif",
+      fileName: "vpn_tunnel_repair.reg",
       quarantinedAt: "Apr 24, 2020 6:06:45",
       deviceId: "82hb7cgg8878d9gh37f535h",
       x: 2.4,
@@ -295,7 +295,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q4",
-      fileName: "legal-tenure.pdf",
+      fileName: "invoice_preview_2020-06-22.js",
       quarantinedAt: "Jun 19, 2020 8:10:54",
       deviceId: "12cb7jtt5878d9gh37f534d5",
       x: -3.3,
@@ -305,7 +305,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q5",
-      fileName: "Scann_158.pdf",
+      fileName: "citrix_workspace_hotfix.cmd",
       quarantinedAt: "Jun 22, 2020 9:06:39",
       deviceId: "72wb7cgg8878d5gh37f535f",
       x: -0.9,
@@ -315,7 +315,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q6",
-      fileName: "forward statement item 2.txt",
+      fileName: "screen-share-driver.pkg",
       quarantinedAt: "Mar 4, 2020 5:31:14",
       deviceId: "41mb7jtt5878d9gh37f534q8",
       x: 1.2,
@@ -325,7 +325,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q7",
-      fileName: "Ghost-audio.wav",
+      fileName: "password-reset-helper.ps1",
       quarantinedAt: "Feb 9, 2020 11:55:10",
       deviceId: "92vb7jtt5878d9gh37f526f",
       x: 3.1,
@@ -335,7 +335,7 @@ function createQuarantineItems(): QuarantineItem[] {
     },
     {
       id: "q8",
-      fileName: "printer_helper.pkg",
+      fileName: "wireless-print-firmware.dmg",
       quarantinedAt: "Jan 14, 2020 8:02:01",
       deviceId: "76vb7jtt5878d9gh37f526f",
       x: 0.9,
@@ -349,11 +349,11 @@ function createQuarantineItems(): QuarantineItem[] {
 function createUsbCategories(): UsbCategory[] {
   return [
     { id: "audio-video", label: "Audio/video", allow: true },
-    { id: "imaging", label: "Imaging", allow: false },
+    { id: "imaging", label: "Imaging", allow: true },
     { id: "mass-storage", label: "Mass Storage", allow: true },
     { id: "mobile", label: "Mobile", allow: true },
     { id: "printer", label: "Printer", allow: true },
-    { id: "wireless", label: "Wireless", allow: false },
+    { id: "wireless", label: "Wireless", allow: true },
   ];
 }
 
@@ -361,51 +361,99 @@ function createUsbFiles(): UsbFileRecord[] {
   return [
     {
       id: "uf1",
-      writtenAt: "Mar 31, 2020 4:46:49",
-      fileName: "Scann_158.pdf",
-      detectedType: ".xlsx",
-      usbDeviceName: "SanDisk Cruzer CZ36",
+      writtenAt: "Jun 24, 2020 15:42:19",
+      fileName: "Sentinel_Removal_Tool.exe",
+      detectedType: ".exe",
+      usbDeviceName: "SanDisk Extreme Pro USB 3.2",
       deviceId: "52rb7jtt5878d9gh37f534q8",
     },
     {
       id: "uf2",
-      writtenAt: "May 21, 2020 3:56:29",
-      fileName: "forward statement item 2.txt",
-      detectedType: ".dwg;.dxf",
-      usbDeviceName: "Samsung Fit Plus (MUF-128AB)",
-      deviceId: "52rb7jtt5878d9gh37f534q8",
+      writtenAt: "Jun 24, 2020 14:18:02",
+      fileName: "finance_q2_archive.zip",
+      detectedType: ".zip",
+      usbDeviceName: "Samsung FIT Plus",
+      deviceId: "62rb7jtt5878d9gh37f534a1",
     },
     {
       id: "uf3",
-      writtenAt: "Apr 21, 2020 12:26:39",
-      fileName: "Book 1(1).xls",
-      detectedType: ".dat",
-      usbDeviceName: "Kingston DataTraveler G4",
-      deviceId: "52rb7jtt5878d9gh37f534q8",
+      writtenAt: "Jun 24, 2020 13:31:47",
+      fileName: "wireless_printer_firmware.pkg",
+      detectedType: ".pkg",
+      usbDeviceName: "Kingston DataTraveler Max",
+      deviceId: "82rb7jtt5878d9gh37f534a4",
     },
     {
       id: "uf4",
-      writtenAt: "Mar 4, 2020 5:41:59",
-      fileName: "ATTACHEMENT 836128956.html",
-      detectedType: ".docx",
-      usbDeviceName: "PNY Turbo",
-      deviceId: "52rb7jtt5878d9gh37f534q8",
+      writtenAt: "Jun 23, 2020 17:05:11",
+      fileName: "vpn-login-fix.ps1",
+      detectedType: ".ps1",
+      usbDeviceName: "IronKey D300",
+      deviceId: "92rb7jtt5878d9gh37f534a7",
     },
     {
       id: "uf5",
-      writtenAt: "Apr 22, 2020 9:35:58",
-      fileName: "Sheet 1.xls",
-      detectedType: ".vsd",
-      usbDeviceName: "SanDisk Extreme Pro SDCZ880",
-      deviceId: "52rb7jtt5878d9gh37f534q8",
+      writtenAt: "Jun 23, 2020 15:28:43",
+      fileName: "payroll_adjustments.docm",
+      detectedType: ".docm",
+      usbDeviceName: "PNY Pro Elite V2",
+      deviceId: "13rb7jtt5878d9gh37f534b3",
     },
     {
       id: "uf6",
-      writtenAt: "Mar 20, 2020 4:45:40",
-      fileName: "legal-tenure.pdf",
-      detectedType: ".pot;.pps;.ppt",
-      usbDeviceName: "Corsair Flash Survivor Stealth",
-      deviceId: "52rb7jtt5878d9gh37f534q8",
+      writtenAt: "Jun 23, 2020 11:52:09",
+      fileName: "rmm_agent_reinstall.msi",
+      detectedType: ".msi",
+      usbDeviceName: "Corsair Flash Voyager GTX",
+      deviceId: "24rb7jtt5878d9gh37f534b8",
+    },
+    {
+      id: "uf7",
+      writtenAt: "Jun 22, 2020 18:44:56",
+      fileName: "remote_assist_viewer.dmg",
+      detectedType: ".dmg",
+      usbDeviceName: "SanDisk Ultra Flair",
+      deviceId: "35rb7jtt5878d9gh37f534c2",
+    },
+    {
+      id: "uf8",
+      writtenAt: "Jun 22, 2020 16:29:18",
+      fileName: "invoice_attachment_review.html",
+      detectedType: ".html",
+      usbDeviceName: "Lexar JumpDrive Tough",
+      deviceId: "46rb7jtt5878d9gh37f534c7",
+    },
+    {
+      id: "uf9",
+      writtenAt: "Jun 22, 2020 13:14:31",
+      fileName: "device_inventory_export.csv",
+      detectedType: ".csv",
+      usbDeviceName: "Samsung BAR Plus",
+      deviceId: "57rb7jtt5878d9gh37f534d2",
+    },
+    {
+      id: "uf10",
+      writtenAt: "Jun 21, 2020 19:07:44",
+      fileName: "MFAReset_Utility.bat",
+      detectedType: ".bat",
+      usbDeviceName: "Apricorn Aegis Secure Key 3NX",
+      deviceId: "68rb7jtt5878d9gh37f534d9",
+    },
+    {
+      id: "uf11",
+      writtenAt: "Jun 21, 2020 12:55:22",
+      fileName: "meeting_recording_transcode.cmd",
+      detectedType: ".cmd",
+      usbDeviceName: "Verbatim Store 'n' Go V3",
+      deviceId: "79rb7jtt5878d9gh37f534e3",
+    },
+    {
+      id: "uf12",
+      writtenAt: "Jun 20, 2020 09:41:37",
+      fileName: "endpoint_config_backup.reg",
+      detectedType: ".reg",
+      usbDeviceName: "WD My Passport SSD",
+      deviceId: "80rb7jtt5878d9gh37f534e8",
     },
   ];
 }
@@ -414,35 +462,101 @@ function createSeenDevices(): UsbSeenRecord[] {
   return [
     {
       id: "ud1",
-      deviceName: "SanDisk Cruzer CZ36",
+      deviceName: "SanDisk Extreme Pro USB 3.2",
       vendor: "SanDisk",
-      connectedAt: "Jun 22, 2020 10:05:12",
+      connectedAt: "Jun 24, 2020 15:42:19",
       lastUser: "Christie Burke",
       deviceId: "52rb7jtt5878d9gh37f534q8",
+      allowListed: true,
     },
     {
       id: "ud2",
-      deviceName: "Samsung Fit Plus",
+      deviceName: "Samsung FIT Plus",
       vendor: "Samsung",
-      connectedAt: "Jun 21, 2020 09:13:08",
+      connectedAt: "Jun 24, 2020 14:18:02",
       lastUser: "Eric Gbozo",
       deviceId: "62rb7jtt5878d9gh37f534a1",
     },
     {
       id: "ud3",
-      deviceName: "Kingston DataTraveler G4",
+      deviceName: "Kingston DataTraveler Max",
       vendor: "Kingston",
-      connectedAt: "Jun 19, 2020 14:51:40",
+      connectedAt: "Jun 24, 2020 13:31:47",
       lastUser: "Jenny Wilson",
       deviceId: "82rb7jtt5878d9gh37f534a4",
     },
     {
       id: "ud4",
-      deviceName: "Corsair Flash Survivor",
-      vendor: "Corsair",
-      connectedAt: "Jun 18, 2020 12:31:03",
+      deviceName: "IronKey D300",
+      vendor: "Kingston / IronKey",
+      connectedAt: "Jun 23, 2020 17:05:11",
       lastUser: "Darrell Steward",
       deviceId: "92rb7jtt5878d9gh37f534a7",
+    },
+    {
+      id: "ud5",
+      deviceName: "Apricorn Aegis Secure Key 3NX",
+      vendor: "Apricorn",
+      connectedAt: "Jun 23, 2020 16:11:26",
+      lastUser: "Anita King",
+      deviceId: "12rb7jtt5878d9gh37f534b1",
+      allowListed: true,
+    },
+    {
+      id: "ud6",
+      deviceName: "Lexar JumpDrive Tough",
+      vendor: "Lexar",
+      connectedAt: "Jun 23, 2020 13:49:55",
+      lastUser: "Portia Osei",
+      deviceId: "22rb7jtt5878d9gh37f534b6",
+    },
+    {
+      id: "ud7",
+      deviceName: "PNY Pro Elite V2",
+      vendor: "PNY",
+      connectedAt: "Jun 23, 2020 11:52:09",
+      lastUser: "Louis Sossou",
+      deviceId: "13rb7jtt5878d9gh37f534b3",
+    },
+    {
+      id: "ud8",
+      deviceName: "Verbatim Store 'n' Go V3",
+      vendor: "Verbatim",
+      connectedAt: "Jun 22, 2020 19:20:14",
+      lastUser: "Randy Miller",
+      deviceId: "79rb7jtt5878d9gh37f534e3",
+    },
+    {
+      id: "ud9",
+      deviceName: "WD My Passport SSD",
+      vendor: "Western Digital",
+      connectedAt: "Jun 22, 2020 17:48:36",
+      lastUser: "Kristin Watson",
+      deviceId: "80rb7jtt5878d9gh37f534e8",
+    },
+    {
+      id: "ud10",
+      deviceName: "Seagate Expansion Portable",
+      vendor: "Seagate",
+      connectedAt: "Jun 22, 2020 14:26:09",
+      lastUser: "Marvin Reed",
+      deviceId: "90rb7jtt5878d9gh37f534f2",
+    },
+    {
+      id: "ud11",
+      deviceName: "Corsair Flash Voyager GTX",
+      vendor: "Corsair",
+      connectedAt: "Jun 21, 2020 18:07:44",
+      lastUser: "Antony Bessan",
+      deviceId: "24rb7jtt5878d9gh37f534b8",
+    },
+    {
+      id: "ud12",
+      deviceName: "Transcend JetFlash 920",
+      vendor: "Transcend",
+      connectedAt: "Jun 21, 2020 10:14:27",
+      lastUser: "Jean Codjo",
+      deviceId: "31rb7jtt5878d9gh37f534f9",
     },
   ];
 }
@@ -591,10 +705,15 @@ export function createInitialDeviceGroupsState(): DeviceGroupsState {
   };
 }
 
-export function createInitialFinalOnboardingState(): FinalOnboardingState {
+export function createInitialFinalOnboardingState(
+  overrides?: Partial<FinalOnboardingState>,
+): FinalOnboardingState {
   return {
     devices: [],
     users: [],
+    stage: "confirm-user",
+    configurationProgress: 0,
+    ...overrides,
   };
 }
 
@@ -653,6 +772,10 @@ export function createInitialPrototype2State(): Prototype2DemoState {
     finalOnboarding: createInitialFinalOnboardingState(),
     ui: {
       finalNavOpen: false,
+      dismissedTodos: {
+        ideal: [],
+        final: [],
+      },
     },
   };
 }
