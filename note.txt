@@ -1,0 +1,31 @@
+*** Another issue that you weren't able to fix, and going back and forth, still does the same problem is the Device canvas.
+
+Issue 1:
+The individual endpoint is not draggable.
+
+Issue 2:
+When I pan in the canvas, and move things around, I got this message:
+
+## Error Type
+Runtime TypeError
+
+## Error Message
+Cannot read properties of null (reading 'viewportX')
+
+
+    at <unknown> (components/prototype2/device-group-canvas.tsx:1130:33)
+    at DeviceGroupCanvas (components/prototype2/device-group-canvas.tsx:627:43)
+    at Prototype2IdealPage (components/prototype2/ideal-page.tsx:547:15)
+    at Prototype2IdealRoute (app/prototype-2/ideal/page.tsx:4:10)
+
+## Code Frame
+  1128 | ...setViewport((current) => ({
+  1129 | ...  ...current,
+> 1130 | ...  x: panStateRef.current!.viewportX + (pointer.x - pa...
+       |                              ^
+  1131 | ...  y: panStateRef.current!.viewportY + (pointer.y - pa...
+  1132 | ...}));
+  1133 | ...return;
+
+Next.js version: 16.2.1 (Turbopack)
+

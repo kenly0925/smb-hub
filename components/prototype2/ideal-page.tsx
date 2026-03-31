@@ -15,6 +15,11 @@ import {
   FinalPreventionLevelSelector,
   finalPreventionLevelTabs,
 } from "@/components/prototype2/final-pages";
+import {
+  AdversaryUniverseSummaryCard,
+  DetectionStatusSummaryCard,
+  HighSeverityEndpointsSummaryCard,
+} from "@/components/prototype2/ideal-summary-widgets";
 import { Prototype2UsbControlContent } from "@/components/prototype2/usb-control-content";
 import {
   P2Button,
@@ -30,7 +35,6 @@ import { getProtectionShieldSrc } from "@/lib/prototype2/presentation";
 import dynamic from "next/dynamic";
 import { DM_Mono } from "next/font/google";
 import {
-  ArrowRight,
   Check,
   Database,
   Download,
@@ -40,14 +44,11 @@ import {
   FileTerminal,
   FileText,
   Info,
-  Monitor,
   Package,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -77,7 +78,7 @@ const DeviceGroupCanvas = dynamic(
   },
 );
 
-const IDEAL_VIEWPORT_HEIGHT = "min(calc(100dvh - 156px), 920px)";
+const IDEAL_VIEWPORT_HEIGHT = "calc(100dvh - 156px)";
 const idealSummaryMono = DM_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
@@ -194,7 +195,7 @@ export function Prototype2IdealPage() {
       ? "bg-[radial-gradient(circle_at_84%_58%,rgba(6,229,183,0.34),transparent_20%),radial-gradient(circle_at_74%_18%,rgba(194,255,231,0.14),transparent_26%),linear-gradient(118deg,rgba(255,255,255,0.02)_0%,rgba(6,229,183,0.08)_56%,rgba(6,229,183,0.18)_100%)]"
       : "bg-[radial-gradient(circle_at_84%_58%,rgba(6,229,183,0.2),transparent_22%),radial-gradient(circle_at_72%_18%,rgba(6,229,183,0.08),transparent_28%),linear-gradient(118deg,rgba(255,255,255,0.98)_0%,rgba(241,255,251,0.98)_58%,rgba(224,251,243,0.98)_100%)]";
   const idealSummaryHeaderClass =
-    "flex items-center gap-2.5 text-[13px] font-medium text-[var(--p2-text-muted)]";
+    "flex items-center gap-2.5 text-[15px] font-semibold text-[var(--p2-text)]";
   const idealSummaryHeaderIconClass = "h-4 w-4";
 
   return (
@@ -239,7 +240,7 @@ export function Prototype2IdealPage() {
                       <div className="text-[13px] font-medium leading-none text-[var(--p2-text-muted)]">
                         Status
                       </div>
-                      <div className="mt-2 text-[clamp(20px,1.55vw,25px)] font-semibold leading-none text-[var(--p2-text-soft)]">
+                      <div className="mt-2 text-[clamp(18px,1.25vw,21px)] font-semibold leading-none text-[var(--p2-text-soft)]">
                         {state.summary.statusLabel}
                       </div>
                     </div>
@@ -400,89 +401,22 @@ export function Prototype2IdealPage() {
               </P2Surface>
 
               <P2Surface className="col-span-4 min-h-0 p-4">
-                <div className="flex h-full flex-col justify-between">
-                  <div>
-                    <div className={idealSummaryHeaderClass}>
-                      <Sparkles className={idealSummaryHeaderIconClass} />
-                      Adversary universe
-                    </div>
-                    <div className="mt-2 text-[24px] font-semibold leading-[1.08] text-[var(--p2-text-soft)]">
-                      Story layer placeholder
-                    </div>
-                    <div className="mt-2 max-w-sm text-sm leading-6 text-[var(--p2-text-muted)]">
-                      This slot will become the lighter-shell introduction to the adversary universe.
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {["SK", "RG", "AV"].map((code, index) => (
-                      <span
-                        key={code}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold"
-                        style={{
-                          backgroundColor: ["#f2f2f2", "#f5d8d8", "#f0cdcd"][index],
-                          color: ["#2d2d2d", "#632929", "#943737"][index],
-                        }}
-                      >
-                        {code}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <AdversaryUniverseSummaryCard theme={state.theme.ideal} />
               </P2Surface>
 
               <P2Surface className="col-span-6 min-h-0 p-4">
-                <div className="flex h-full flex-col justify-between">
-                  <div>
-                    <div className={idealSummaryHeaderClass}>
-                      <Monitor className={idealSummaryHeaderIconClass} />
-                      Devices
-                    </div>
-                    <div className="mt-2 text-[24px] font-semibold leading-[1.08] text-[var(--p2-text-soft)]">
-                      Device grouping overview
-                    </div>
-                    <div className="mt-2 text-sm leading-6 text-[var(--p2-text-muted)]">
-                      Reserved for a condensed version of the canvas board.
-                    </div>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    <div className="text-sm text-[var(--p2-text-muted)]">
-                      {state.devices.items.length} connected devices available
-                    </div>
-                    <P2Button variant="secondary" onClick={() => setActiveTab("devices")}>
-                      Open devices
-                      <ArrowRight className="h-4 w-4" />
-                    </P2Button>
-                  </div>
-                </div>
+                <DetectionStatusSummaryCard
+                  theme={state.theme.ideal}
+                  devices={state.devices.items}
+                />
               </P2Surface>
 
               <P2Surface className="col-span-6 min-h-0 p-4">
-                <div className="flex h-full flex-col justify-between">
-                  <div>
-                    <div className={idealSummaryHeaderClass}>
-                      <Users className={idealSummaryHeaderIconClass} />
-                      Users
-                    </div>
-                    <div className="mt-2 text-[24px] font-semibold leading-[1.08] text-[var(--p2-text-soft)]">
-                      Team operations summary
-                    </div>
-                    <div className="mt-2 text-sm leading-6 text-[var(--p2-text-muted)]">
-                      Reserved for a compact view of user roles, alerts, and assignment handoff.
-                    </div>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    <div className="text-sm text-[var(--p2-text-muted)]">
-                      {state.users.items.length} people covered in the shared demo
-                    </div>
-                    <Link
-                      href="/prototype-2/ideal/users"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-[var(--p2-link)] transition hover:underline"
-                    >
-                      Open users
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
+                <HighSeverityEndpointsSummaryCard
+                  theme={state.theme.ideal}
+                  devices={state.devices.items}
+                  onOpenDevices={() => setActiveTab("devices")}
+                />
               </P2Surface>
             </div>
           ) : null}

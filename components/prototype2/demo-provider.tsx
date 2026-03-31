@@ -176,9 +176,12 @@ function loadStoredState() {
     const usesLegacyUsbFilePlaceholders =
       parsedUsbFiles?.length === LEGACY_USB_FILE_NAMES.length &&
       parsedUsbFiles.every((item, index) => item.fileName === LEGACY_USB_FILE_NAMES[index]);
-    const migratedUsbFiles = usesLegacyUsbFilePlaceholders
-      ? initialState.usbControl.filesWritten
-      : parsedUsbFiles ?? initialState.usbControl.filesWritten;
+    const migratedUsbFiles =
+      usesLegacyUsbFilePlaceholders ||
+      !parsedUsbFiles ||
+      parsedUsbFiles.length < initialState.usbControl.filesWritten.length
+        ? initialState.usbControl.filesWritten
+        : parsedUsbFiles;
     const parsedSeenDevices = parsedState.usbControl?.recentDevices;
     const usesLegacySeenDevicePlaceholders =
       parsedSeenDevices?.length === LEGACY_USB_DEVICE_NAMES.length &&

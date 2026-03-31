@@ -250,7 +250,7 @@ export function FinalCountBadge({
   );
 }
 
-function AdversaryIconCarousel() {
+export function AdversaryIconCarousel() {
   const repeatedIcons = [...adversaryIcons, ...adversaryIcons];
 
   return (
