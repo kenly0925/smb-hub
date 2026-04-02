@@ -58,6 +58,14 @@ type GroupDragState = {
   group: DeviceGroup;
 };
 
+type DeviceDragState = {
+  deviceId: string;
+  pointerX: number;
+  pointerY: number;
+  group: DeviceGroup;
+  item: PositionedDevice;
+};
+
 type PanState = {
   pointerX: number;
   pointerY: number;
@@ -633,6 +641,12 @@ export function DeviceGroupCanvas({
   } | null>(null);
   const [draggingGroupId, setDraggingGroupId] = useState<string | null>(null);
   const [draggingDeviceId, setDraggingDeviceId] = useState<string | null>(null);
+  const [deviceDragState, setDeviceDragState] = useState<DeviceDragState | null>(null);
+  const [deviceDragPreview, setDeviceDragPreview] = useState<{
+    deviceId: string;
+    x: number;
+    y: number;
+  } | null>(null);
   const [stageDragging, setStageDragging] = useState(false);
   const [groupDragState, setGroupDragState] = useState<GroupDragState | null>(null);
   const [groupDragPreview, setGroupDragPreview] = useState<DeviceGroup | null>(null);
@@ -690,6 +704,7 @@ export function DeviceGroupCanvas({
   const isInteracting =
     draggingGroupId !== null ||
     draggingDeviceId !== null ||
+    deviceDragState !== null ||
     groupDragState !== null ||
     resizeState !== null;
   const filterShellClass = isDark
@@ -944,6 +959,9 @@ export function DeviceGroupCanvas({
     setDraftGroupName(group.name);
     setSelectedGroupId(group.id);
     setDraggingGroupId(null);
+    setDraggingDeviceId(null);
+    setDeviceDragState(null);
+    setDeviceDragPreview(null);
     setGroupDragState(null);
     setGroupDragPreview(null);
   }
@@ -1100,6 +1118,21 @@ export function DeviceGroupCanvas({
       return;
     }
 
+    if (deviceDragState) {
+      const pointer = getPointerPosition();
+
+      if (!pointer) {
+        return;
+      }
+
+      setDeviceDragPreview({
+        deviceId: deviceDragState.deviceId,
+        x: deviceDragState.item.x + (pointer.x - deviceDragState.pointerX),
+        y: deviceDragState.item.y + (pointer.y - deviceDragState.pointerY),
+      });
+      return;
+    }
+
     if (resizeState) {
       const pointer = getPointerPosition();
 
@@ -1118,7 +1151,9 @@ export function DeviceGroupCanvas({
       return;
     }
 
-    if (panStateRef.current) {
+    const panState = panStateRef.current;
+
+    if (panState) {
       const pointer = stageRef.current?.getPointerPosition();
 
       if (!pointer) {
@@ -1127,8 +1162,8 @@ export function DeviceGroupCanvas({
 
       setViewport((current) => ({
         ...current,
-        x: panStateRef.current!.viewportX + (pointer.x - panStateRef.current!.pointerX),
-        y: panStateRef.current!.viewportY + (pointer.y - panStateRef.current!.pointerY),
+        x: panState.viewportX + (pointer.x - panState.pointerX),
+        y: panState.viewportY + (pointer.y - panState.pointerY),
       }));
       return;
     }
@@ -1159,6 +1194,43 @@ export function DeviceGroupCanvas({
     if (panStateRef.current) {
       panStateRef.current = null;
       setStageDragging(false);
+      return;
+    }
+
+    if (deviceDragState) {
+      const preview = deviceDragPreview ?? {
+        deviceId: deviceDragState.deviceId,
+        x: deviceDragState.item.x,
+        y: deviceDragState.item.y,
+      };
+      const absolutePosition = {
+        x: deviceDragState.group.x + preview.x,
+        y: deviceDragState.group.y + preview.y,
+      };
+      const targetGroup =
+        displayGroups.find(
+          (candidate) =>
+            absolutePosition.x >= candidate.x &&
+            absolutePosition.x <= candidate.x + candidate.width &&
+            absolutePosition.y >= candidate.y &&
+            absolutePosition.y <= candidate.y + candidate.height,
+        ) ?? deviceDragState.group;
+      const targetPosition = clampDevicePosition(targetGroup, {
+        x: absolutePosition.x - targetGroup.x,
+        y: absolutePosition.y - targetGroup.y,
+      });
+
+      updateDevicePlacements([{
+        id: deviceDragState.deviceId,
+        groupId: targetGroup.id,
+        x: targetPosition.x,
+        y: targetPosition.y,
+        positionPinned: true,
+      }]);
+      setSelectedGroupId(targetGroup.id);
+      setDraggingDeviceId(null);
+      setDeviceDragState(null);
+      setDeviceDragPreview(null);
       return;
     }
 
@@ -1649,16 +1721,44 @@ export function DeviceGroupCanvas({
                   );
                   const deviceHovered = hoveredDeviceId === item.device.id;
                   const deviceBorder = deviceHovered ? primaryStroke : deviceShellStroke;
+                  const devicePosition =
+                    deviceDragPreview?.deviceId === item.device.id
+                      ? deviceDragPreview
+                      : item;
 
                   return (
                     <Group
                       key={item.device.id}
-                      x={item.x}
-                      y={item.y}
-                      draggable={tool === "pan"}
+                      x={devicePosition.x}
+                      y={devicePosition.y}
                       onMouseDown={(event) => {
+                        if (tool !== "pan" || resizeState || groupDragState) {
+                          return;
+                        }
+
                         event.cancelBubble = true;
                         setStageDragEnabled(false);
+                        const pointer = getPointerPosition();
+
+                        if (!pointer) {
+                          return;
+                        }
+
+                        setSelectedGroupId(group.id);
+                        setHoveredDeviceId(item.device.id);
+                        setDraggingDeviceId(item.device.id);
+                        setDeviceDragState({
+                          deviceId: item.device.id,
+                          pointerX: pointer.x,
+                          pointerY: pointer.y,
+                          group,
+                          item,
+                        });
+                        setDeviceDragPreview({
+                          deviceId: item.device.id,
+                          x: item.x,
+                          y: item.y,
+                        });
                       }}
                       onMouseOver={() => setHoveredDeviceId(item.device.id)}
                       onMouseMove={() => setHoveredDeviceId(item.device.id)}
@@ -1667,45 +1767,6 @@ export function DeviceGroupCanvas({
                           current === item.device.id ? null : current,
                         )
                       }
-                      onDragStart={(event) => {
-                        event.cancelBubble = true;
-                        setDraggingDeviceId(item.device.id);
-                      }}
-                      onDragEnd={(event) => {
-                        event.cancelBubble = true;
-                        setDraggingDeviceId(null);
-
-                        const localPosition = event.target.position();
-                        const absolutePosition = {
-                          x: group.x + localPosition.x,
-                          y: group.y + localPosition.y,
-                        };
-                        const targetGroup =
-                          displayGroups.find(
-                            (candidate) =>
-                              absolutePosition.x >= candidate.x &&
-                              absolutePosition.x <= candidate.x + candidate.width &&
-                              absolutePosition.y >= candidate.y &&
-                              absolutePosition.y <= candidate.y + candidate.height,
-                          ) ?? group;
-                        const targetPosition = clampDevicePosition(targetGroup, {
-                          x: absolutePosition.x - targetGroup.x,
-                          y: absolutePosition.y - targetGroup.y,
-                        });
-
-                        if (targetGroup.id === group.id) {
-                          event.target.position(targetPosition);
-                        }
-
-                        updateDevicePlacements([{
-                          id: item.device.id,
-                          groupId: targetGroup.id,
-                          x: targetPosition.x,
-                          y: targetPosition.y,
-                          positionPinned: true,
-                        }]);
-                        setSelectedGroupId(targetGroup.id);
-                      }}
                     >
                       <Rect
                         x={-badgeWidth / 2}
