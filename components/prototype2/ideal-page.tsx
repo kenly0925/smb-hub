@@ -400,7 +400,7 @@ export function Prototype2IdealPage() {
                 </div>
               </P2Surface>
 
-              <P2Surface className="col-span-4 min-h-0 p-4">
+              <P2Surface className="col-span-4 min-h-0 overflow-hidden p-0">
                 <AdversaryUniverseSummaryCard theme={state.theme.ideal} />
               </P2Surface>
 

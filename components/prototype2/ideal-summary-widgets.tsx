@@ -358,6 +358,9 @@ export function AdversaryUniverseSummaryCard({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const isDark = theme === "dark";
+  const iconGlassClassName = isDark
+    ? "border-white/10 bg-black/30 shadow-[0_12px_32px_rgba(0,0,0,0.26)] backdrop-blur-md"
+    : "border-white/20 bg-white/40 shadow-[0_12px_28px_rgba(15,23,42,0.14)] backdrop-blur-md";
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -378,33 +381,8 @@ export function AdversaryUniverseSummaryCard({
   }
 
   return (
-      <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 text-[15px] font-semibold text-[var(--p2-text)]">
-          <Sparkles className="h-4 w-4" />
-          Adversary universe
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={showPreviousSlide}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-[var(--p2-border)] bg-[var(--p2-surface)] text-[var(--p2-text-muted)] transition hover:text-[var(--p2-text-soft)]"
-            aria-label="Show previous adversary banner"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={showNextSlide}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-[var(--p2-border)] bg-[var(--p2-surface)] text-[var(--p2-text-muted)] transition hover:text-[var(--p2-text-soft)]"
-            aria-label="Show next adversary banner"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="relative -mx-4 mt-4 min-h-0 flex-1 overflow-hidden border-y border-[var(--p2-border)]">
+    <div className="relative isolate flex h-full min-h-[264px] overflow-hidden">
+      <div className="absolute inset-0">
         {adversaryBannerSlides.map((src, index) => (
           <Image
             key={src}
@@ -423,17 +401,49 @@ export function AdversaryUniverseSummaryCard({
           className="absolute inset-0"
           style={{
             background: isDark
-              ? "linear-gradient(180deg, rgba(10,10,12,0.05) 0%, rgba(10,10,12,0.2) 100%)"
-              : "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.18) 100%)",
+              ? "linear-gradient(180deg, rgba(10,10,12,0.12) 0%, rgba(10,10,12,0.18) 56%, rgba(10,10,12,0.42) 100%)"
+              : "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.14) 56%, rgba(255,255,255,0.34) 100%)",
           }}
         />
       </div>
 
-      <div className="mt-4 flex w-full items-center justify-between gap-3 rounded-[var(--p2-radius-card)] border border-[var(--p2-border)] bg-[var(--p2-panel)] px-4 py-3">
-        <div className="text-[12px] font-medium text-[var(--p2-text-muted)]">
-          Tracked adversaries
+      <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-3 px-4 py-4">
+        <div className="flex items-center gap-2.5 text-[15px] font-semibold text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          <Sparkles className="h-4 w-4" />
+          Adversary universe
         </div>
-        <AdversaryIconCarousel />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={showPreviousSlide}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-white/10 bg-black/28 text-white/90 shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md transition hover:bg-black/38 hover:text-white"
+            aria-label="Show previous adversary banner"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={showNextSlide}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-white/10 bg-black/28 text-white/90 shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md transition hover:bg-black/38 hover:text-white"
+            aria-label="Show next adversary banner"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-4">
+        <div
+          className={`flex w-full items-center gap-4 rounded-[14px] border px-4 py-3 ${iconGlassClassName}`}
+        >
+          <div className="shrink-0 text-[12px] font-medium text-white/86 drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]">
+            Detected adversaries
+          </div>
+          <AdversaryIconCarousel
+            className="min-w-0 flex-1"
+            showEdgeFades={false}
+          />
+        </div>
       </div>
     </div>
   );
@@ -513,11 +523,15 @@ export function DetectionStatusSummaryCard({
             <Monitor className="h-4 w-4" />
             Detection activity
           </div>
-          <div className={`${summaryMono.className} mt-3 text-[30px] font-medium leading-none text-[var(--p2-text-soft)]`}>
-            {latestDetections}
-          </div>
-          <div className="mt-1 text-sm text-[var(--p2-text-muted)]">
-            Monthly activity
+          <div className="mt-3 flex items-end gap-3">
+            <div
+              className={`${summaryMono.className} text-[30px] font-medium leading-none text-[var(--p2-text-soft)]`}
+            >
+              {latestDetections}
+            </div>
+            <div className="pb-1 text-sm text-[var(--p2-text-muted)]">
+              total detections monthly
+            </div>
           </div>
         </div>
 

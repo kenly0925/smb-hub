@@ -250,13 +250,24 @@ export function FinalCountBadge({
   );
 }
 
-export function AdversaryIconCarousel() {
+export function AdversaryIconCarousel({
+  className,
+  showEdgeFades = true,
+}: {
+  className?: string;
+  showEdgeFades?: boolean;
+}) {
   const repeatedIcons = [...adversaryIcons, ...adversaryIcons];
+  const rootClassName = cn("relative overflow-hidden", className ?? "w-[188px]");
 
   return (
-    <div className="relative w-[188px] overflow-hidden">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[var(--p2-panel)] to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[var(--p2-panel)] to-transparent" />
+    <div className={rootClassName}>
+      {showEdgeFades ? (
+        <>
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[var(--p2-panel)] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[var(--p2-panel)] to-transparent" />
+        </>
+      ) : null}
       <div
         className="flex w-max items-center gap-3"
         style={{ animation: "p2-adversary-scroll 32s linear infinite" }}
