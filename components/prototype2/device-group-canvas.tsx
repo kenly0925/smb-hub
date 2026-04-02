@@ -99,7 +99,7 @@ const ALL_DEVICES_CENTERED_SIZE = {
   height: 540,
 };
 const ALL_DEVICES_CENTERED_CANVAS_MARGIN_X = 120;
-const ALL_DEVICES_CENTERED_CANVAS_MARGIN_Y = 136;
+const ALL_DEVICES_CENTERED_CANVAS_MARGIN_Y = 128;
 
 const GROUP_MIN_WIDTH = 320;
 const GROUP_MIN_HEIGHT = 240;
@@ -271,7 +271,7 @@ function getCenteredDefaultGroup(
     width,
     height,
     x: Math.round((canvasSize.width - width) / 2),
-    y: Math.max(64, Math.round((canvasSize.height - height) / 2) - 12),
+    y: Math.max(64, Math.round((canvasSize.height - height) / 2)),
   };
 }
 

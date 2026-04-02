@@ -279,16 +279,17 @@ export function Prototype2IdealPage() {
                     <ShieldCheck className={idealSummaryHeaderIconClass} />
                     Next-gen AV
                   </div>
-                  <div className="mt-4 flex justify-center">
+                  <div className="flex flex-1 items-center justify-center">
                     <FinalCountBadge
                       icon={<ShieldCheck className="h-7 w-7" />}
                       value={state.summary.threatsPrevented.toLocaleString()}
                       label="threats prevented"
                       themeMode={state.theme.ideal}
                       badgeBackdropClassName="bg-[var(--p2-panel)]"
+                      centered
                     />
                   </div>
-                  <div className="mt-auto pt-4">
+                  <div className="pt-4">
                     <FinalPreventionLevelSelector
                       levels={finalPreventionLevelTabs}
                       activeId={state.prevention.level}

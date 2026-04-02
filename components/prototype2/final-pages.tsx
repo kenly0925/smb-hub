@@ -224,15 +224,19 @@ export function FinalCountBadge({
   label,
   badgeBackdropClassName,
   themeMode,
+  centered = false,
 }: {
   icon: React.ReactNode;
   value: number | string;
   label: string;
   badgeBackdropClassName?: string;
   themeMode?: ThemeMode;
+  centered?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-4">
+    <div
+      className={`flex items-center gap-4 ${centered ? "justify-center text-center" : ""}`}
+    >
       <FinalPolygonBadge
         icon={icon}
         backdropClassName={badgeBackdropClassName}
