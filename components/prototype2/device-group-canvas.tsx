@@ -58,6 +58,13 @@ type GroupDragState = {
   group: DeviceGroup;
 };
 
+type PendingGroupDragState = {
+  groupId: string;
+  pointerX: number;
+  pointerY: number;
+  group: DeviceGroup;
+};
+
 type DeviceDragState = {
   deviceId: string;
   pointerX: number;
@@ -124,6 +131,7 @@ const DEVICE_TOOLTIP_WIDTH = 248;
 const DEVICE_TOOLTIP_ESTIMATED_HEIGHT = 126;
 const DEVICE_TOOLTIP_ARROW_DEPTH = 9;
 const RESIZE_HIT_SIZE = 12;
+const GROUP_DRAG_THRESHOLD = 6;
 const MIN_SCALE = 0.72;
 const MAX_SCALE = 2.2;
 
@@ -641,6 +649,7 @@ export function DeviceGroupCanvas({
   } | null>(null);
   const [draggingGroupId, setDraggingGroupId] = useState<string | null>(null);
   const [draggingDeviceId, setDraggingDeviceId] = useState<string | null>(null);
+  const [pendingGroupDrag, setPendingGroupDrag] = useState<PendingGroupDragState | null>(null);
   const [deviceDragState, setDeviceDragState] = useState<DeviceDragState | null>(null);
   const [deviceDragPreview, setDeviceDragPreview] = useState<{
     deviceId: string;
@@ -704,6 +713,7 @@ export function DeviceGroupCanvas({
   const isInteracting =
     draggingGroupId !== null ||
     draggingDeviceId !== null ||
+    pendingGroupDrag !== null ||
     deviceDragState !== null ||
     groupDragState !== null ||
     resizeState !== null;
@@ -960,6 +970,7 @@ export function DeviceGroupCanvas({
     setSelectedGroupId(group.id);
     setDraggingGroupId(null);
     setDraggingDeviceId(null);
+    setPendingGroupDrag(null);
     setDeviceDragState(null);
     setDeviceDragPreview(null);
     setGroupDragState(null);
@@ -991,6 +1002,31 @@ export function DeviceGroupCanvas({
     }
 
     return stage.getRelativePointerPosition();
+  }
+
+  function beginPendingGroupDrag(
+    event: KonvaEventObject<MouseEvent>,
+    group: DeviceGroup,
+  ) {
+    if (tool !== "pan" || resizeState || deviceDragState || groupDragState) {
+      return;
+    }
+
+    event.cancelBubble = true;
+    setStageDragEnabled(false);
+    const pointer = getPointerPosition();
+
+    if (!pointer) {
+      return;
+    }
+
+    setSelectedGroupId(group.id);
+    setPendingGroupDrag({
+      groupId: group.id,
+      pointerX: pointer.x,
+      pointerY: pointer.y,
+      group,
+    });
   }
 
   function zoomCanvas(delta: number) {
@@ -1051,6 +1087,9 @@ export function DeviceGroupCanvas({
       current?.groupId === deleteTargetGroupId ? null : current,
     );
     setDraggingGroupId((current) => (current === deleteTargetGroupId ? null : current));
+    setPendingGroupDrag((current) =>
+      current?.groupId === deleteTargetGroupId ? null : current,
+    );
     setGroupDragState((current) =>
       current?.groupId === deleteTargetGroupId ? null : current,
     );
@@ -1103,6 +1142,31 @@ export function DeviceGroupCanvas({
   }
 
   function handleStageMouseMove() {
+    if (pendingGroupDrag) {
+      const pointer = getPointerPosition();
+
+      if (!pointer) {
+        return;
+      }
+
+      const deltaX = pointer.x - pendingGroupDrag.pointerX;
+      const deltaY = pointer.y - pendingGroupDrag.pointerY;
+
+      if (Math.hypot(deltaX, deltaY) < GROUP_DRAG_THRESHOLD) {
+        return;
+      }
+
+      setDraggingGroupId(pendingGroupDrag.groupId);
+      setGroupDragState(pendingGroupDrag);
+      setGroupDragPreview({
+        ...pendingGroupDrag.group,
+        x: pendingGroupDrag.group.x + deltaX,
+        y: pendingGroupDrag.group.y + deltaY,
+      });
+      setPendingGroupDrag(null);
+      return;
+    }
+
     if (groupDragState) {
       const pointer = getPointerPosition();
 
@@ -1194,6 +1258,11 @@ export function DeviceGroupCanvas({
     if (panStateRef.current) {
       panStateRef.current = null;
       setStageDragging(false);
+      return;
+    }
+
+    if (pendingGroupDrag) {
+      setPendingGroupDrag(null);
       return;
     }
 
@@ -1653,6 +1722,7 @@ export function DeviceGroupCanvas({
                   stroke={resolvedGroupStroke}
                   strokeWidth={1}
                   fill={resolvedGroupFill}
+                  onMouseDown={(event) => beginPendingGroupDrag(event, group)}
                   onMouseEnter={() => setHoveredGroupId(group.id)}
                   onMouseLeave={() =>
                     setHoveredGroupId((current) => (current === group.id ? null : current))
@@ -1666,6 +1736,7 @@ export function DeviceGroupCanvas({
                   fontSize={16}
                   fontStyle="bold"
                   opacity={isEditing ? 0 : 1}
+                  onMouseDown={(event) => beginPendingGroupDrag(event, group)}
                   onDblClick={() => beginEditingGroup(group)}
                 />
                 <Text
@@ -1675,43 +1746,7 @@ export function DeviceGroupCanvas({
                   fill={groupMetaColor}
                   fontSize={12}
                   opacity={0.92}
-                />
-                <Rect
-                  x={12}
-                  y={10}
-                  width={Math.max(
-                    120,
-                    group.width - (group.id === "all-devices" ? 24 : 58),
-                  )}
-                  height={42}
-                  fill="rgba(0,0,0,0.001)"
-                  onMouseDown={(event) => {
-                    if (tool !== "pan" || resizeState) {
-                      return;
-                    }
-
-                    event.cancelBubble = true;
-                    setStageDragEnabled(false);
-                    const pointer = getPointerPosition();
-
-                    if (!pointer) {
-                      return;
-                    }
-
-                    setSelectedGroupId(group.id);
-                    setDraggingGroupId(group.id);
-                    setGroupDragState({
-                      groupId: group.id,
-                      pointerX: pointer.x,
-                      pointerY: pointer.y,
-                      group,
-                    });
-                    setGroupDragPreview(group);
-                  }}
-                  onDblClick={(event) => {
-                    event.cancelBubble = true;
-                    beginEditingGroup(group);
-                  }}
+                  onMouseDown={(event) => beginPendingGroupDrag(event, group)}
                 />
 
                 {devices.map((item) => {
