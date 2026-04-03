@@ -787,7 +787,7 @@ export function Prototype2FinalSummaryPage() {
 
   return (
     <div
-      className={`grid min-h-0 flex-1 grid-rows-[minmax(0,7fr)_minmax(0,2fr)_minmax(0,1fr)] overflow-hidden border border-[var(--p2-border)] bg-[var(--p2-panel)] shadow-[var(--p2-shadow)] ${FINAL_CONTENT_RADIUS_CLASS}`}
+      className={`grid min-h-0 flex-1 grid-rows-[minmax(0,6.5fr)_minmax(0,2.5fr)_minmax(0,1fr)] overflow-hidden border border-[var(--p2-border)] bg-[var(--p2-panel)] shadow-[var(--p2-shadow)] ${FINAL_CONTENT_RADIUS_CLASS}`}
     >
       <FinalProtectionHero
         theme={state.theme.final}
