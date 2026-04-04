@@ -16,6 +16,9 @@ const appMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "SMB Hub Prototypes",
   description: "Local cyber demo prototypes built with Next.js and Tailwind.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
